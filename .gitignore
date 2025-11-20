@@ -1,0 +1,16 @@
+# Evita di caricare dipendenze
+node_modules/
+
+# Log vari
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# File di sistema
+.DS_Store
+Thumbs.db
+
+# Evitiamo di caricare build o cache eventuali
+dist/
+build/
+.cache/
