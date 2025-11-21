@@ -1,6 +1,6 @@
 // server.js
 import express from "express";
-import fetch from "node-fetch"; // se usi Node 18+ puoi usare fetch nativo
+import fetch from "node-fetch";
 import cors from "cors";
 
 const app = express();
@@ -9,12 +9,11 @@ const PORT = process.env.PORT || 3000;
 app.use(cors());
 app.use(express.json());
 
-// Endpoint per creare l'ordine su Printful
 app.post("/create-order", async (req, res) => {
-  const { name, email } = req.body;
+  const { name, email, address1, city, country_code } = req.body;
 
-  if (!name || !email) {
-    return res.status(400).json({ error: "Nome ed email richiesti" });
+  if (!name || !email || !address1 || !city || !country_code) {
+    return res.status(400).json({ error: "Tutti i campi sono richiesti" });
   }
 
   const apiToken = process.env.PRINTFUL_TOKEN;
@@ -28,17 +27,29 @@ app.post("/create-order", async (req, res) => {
         "Authorization": `Bearer ${apiToken}`,
       },
       body: JSON.stringify({
-        recipient: { name, email },
-        items: [{ sync_product_id: productId, quantity: 1 }],
+        recipient: {
+          name,
+          email,
+          address1,
+          city,
+          country_code,
+        },
+        items: [
+          {
+            sync_product_id: productId,
+            quantity: 1,
+          },
+        ],
       }),
     });
 
     const data = await response.json();
 
-    if (data && data.result && data.result.checkout_url) {
+    console.log("Printful response:", data);
+
+    if (data?.result?.checkout_url) {
       return res.json({ checkout: data.result.checkout_url });
     } else {
-      console.error("Printful response:", data);
       return res.status(500).json({ error: "Impossibile creare l'ordine" });
     }
   } catch (error) {
@@ -47,7 +58,7 @@ app.post("/create-order", async (req, res) => {
   }
 });
 
-// Start server
 app.listen(PORT, () => {
   console.log(`Server Rubbers backend attivo su porta ${PORT}`);
 });
+
