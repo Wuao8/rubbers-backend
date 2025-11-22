@@ -36,7 +36,7 @@ app.post("/create-order", async (req, res) => {
         },
         items: [
           {
-            sync_product_id: productId,
+            variant_id: variantId,
             quantity: 1,
           },
         ],
