@@ -21,52 +21,54 @@ app.post("/create-order", async (req, res) => {
   }
 
   const apiToken = process.env.PRINTFUL_TOKEN;
-
-  // Seleziona variante in base al colore
   const selectedVariant = color.toLowerCase() === "black" ? variantBlack : variantPink;
 
- try {
-  const response = await fetch("https://api.printful.com/orders", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      "Authorization": `Bearer ${apiToken}`,
-    },
-    body: JSON.stringify({
-      recipient: { name, email, address1, city, country_code },
-      items: [
-        {
-          variant_id: selectedVariant,
-          quantity: 1,
-          files: [
-            {
-              type: "embroidery_front",
-              url: "https://www.printful.com/library/file/903954654/download?lang=it",
-              options: {
-                thread_colors: [
-                  { id: "thread_colors", value: ["#CC3333"] }
+  try {
+    const response = await fetch("https://api.printful.com/orders", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${apiToken}`,
+      },
+      body: JSON.stringify({
+        recipient: {
+          name,
+          email,
+          address1,
+          city,
+          country_code,
+        },
+        items: [
+          {
+            variant_id: selectedVariant,
+            quantity: 1,
+            files: [
+              {
+                type: "embroidery_front",
+                url: "https://www.printful.com/library/file/903954654/download?lang=it",
+                options: [
+                  { id: "thread_colors", value: ["#CC3333"] } // rosso logo
                 ]
               }
-            }
-          ]
-        }
-      ]
-    })
-  });
+            ]
+          }
+        ]
+      })
+    });
 
-  const data = await response.json();
-  console.log("Printful response:", data);
+    const data = await response.json();
+    console.log("Printful response:", data);
 
-  if (data?.result?.checkout_url) {
-    return res.json({ checkout: data.result.checkout_url });
-  } else {
-    return res.status(500).json({ error: "Impossibile creare l'ordine" });
+    if (data?.result?.checkout_url) {
+      return res.json({ checkout: data.result.checkout_url });
+    } else {
+      return res.status(500).json({ error: "Impossibile creare l'ordine" });
+    }
+  } catch (error) {
+    console.error("Errore backend:", error);
+    return res.status(500).json({ error: "Errore interno al server" });
   }
-} catch (error) {
-  console.error("Errore backend:", error);
-  return res.status(500).json({ error: "Errore interno al server" });
-}
-
+});
 
 app.listen(PORT, () => {
   console.log(`Server Rubbers backend attivo su porta ${PORT}`);
