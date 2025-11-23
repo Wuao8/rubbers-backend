@@ -33,20 +33,30 @@ app.post("/create-order", async (req, res) => {
         "Authorization": `Bearer ${apiToken}`,
       },
       body: JSON.stringify({
-        recipient: { name, email, address1, city, country_code },
-        items: [
-          {
-           variant_id: selectedVariant,
-           quantity: 1,
-           files: [
-              {
-                type: "embroidery_front",
-                url: "https://www.printful.com/library/file/903954654/download?lang=it"
-             }
-           ]
-         }
-       ]
-     }),
+  recipient: {
+    name,
+    email,
+    address1,
+    city,
+    country_code,
+  },
+  items: [
+    {
+      variant_id: selectedVariant,
+      quantity: 1,
+      files: [
+        {
+          type: "embroidery_front",
+          file: 903954654,
+          options: {
+            thread_colors: ["#CC3333"] // colore rosso per il logo
+          }
+        }
+      ]
+    }
+  ]
+});
+
      });
 
 
