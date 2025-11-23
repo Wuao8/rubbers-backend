@@ -40,14 +40,15 @@ app.post("/create-order", async (req, res) => {
            quantity: 1,
            files: [
               {
-               type: "embroidery_front",
-               file: 903954654
-              }
-            ]
-          }
-        ],
+                type: "embroidery_front",
+                url: "https://www.printful.com/library/file/903954654/download?lang=it"
+             }
+           ]
+         }
+       ]
      }),
      });
+
 
 
     const data = await response.json();
