@@ -47,6 +47,7 @@ app.post("/create-order", async (req, res) => {
           }
         ],
      }),
+     });
 
 
     const data = await response.json();
