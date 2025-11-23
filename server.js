@@ -25,58 +25,48 @@ app.post("/create-order", async (req, res) => {
   // Seleziona variante in base al colore
   const selectedVariant = color.toLowerCase() === "black" ? variantBlack : variantPink;
 
-  try {
-   const response = await fetch("https://api.printful.com/orders", {
-  method: "POST",
-  headers: {
-    "Content-Type": "application/json",
-    "Authorization": `Bearer ${apiToken}`,
-  },
-  body: JSON.stringify({
-    recipient: {
-      name,
-      email,
-      address1,
-      city,
-      country_code,
+ try {
+  const response = await fetch("https://api.printful.com/orders", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "Authorization": `Bearer ${apiToken}`,
     },
-    items: [
-      {
-        variant_id: selectedVariant,
-        quantity: 1,
-        files: [
-  {
-    type: "embroidery_front",
-    url: "https://www.printful.com/library/file/903954654/download?lang=it",
-    options: {
-      thread_colors: [
-        { id: "thread_colors", value: ["#CC3333"] }
+    body: JSON.stringify({
+      recipient: { name, email, address1, city, country_code },
+      items: [
+        {
+          variant_id: selectedVariant,
+          quantity: 1,
+          files: [
+            {
+              type: "embroidery_front",
+              url: "https://www.printful.com/library/file/903954654/download?lang=it",
+              options: {
+                thread_colors: [
+                  { id: "thread_colors", value: ["#CC3333"] }
+                ]
+              }
+            }
+          ]
+        }
       ]
-    }
+    })
+  });
+
+  const data = await response.json();
+  console.log("Printful response:", data);
+
+  if (data?.result?.checkout_url) {
+    return res.json({ checkout: data.result.checkout_url });
+  } else {
+    return res.status(500).json({ error: "Impossibile creare l'ordine" });
   }
-]
-    }
-  ]
-})
+} catch (error) {
+  console.error("Errore backend:", error);
+  return res.status(500).json({ error: "Errore interno al server" });
+}
 
-
-     
-
-
-
-    const data = await response.json();
-    console.log("Printful response:", data);
-
-    if (data?.result?.checkout_url) {
-      return res.json({ checkout: data.result.checkout_url });
-    } else {
-      return res.status(500).json({ error: "Impossibile creare l'ordine" });
-    }
-  } catch (error) {
-    console.error("Errore backend:", error);
-    return res.status(500).json({ error: "Errore interno al server" });
-  }
-});
 
 app.listen(PORT, () => {
   console.log(`Server Rubbers backend attivo su porta ${PORT}`);
