@@ -47,7 +47,7 @@ app.post("/create-order", async (req, res) => {
       files: [
         {
           type: "embroidery_front",
-          file: 903954654,
+          file_id: 903954654,
           options: {
             thread_colors: ["#CC3333"] // colore rosso per il logo
           }
