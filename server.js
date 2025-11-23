@@ -34,9 +34,20 @@ app.post("/create-order", async (req, res) => {
       },
       body: JSON.stringify({
         recipient: { name, email, address1, city, country_code },
-        items: [{ variant_id: selectedVariant, quantity: 1 }],
-      }),
-    });
+        items: [
+          {
+           variant_id: selectedVariant,
+           quantity: 1,
+           files: [
+              {
+               type: "embroidery_front",
+               file: 903954654
+              }
+            ]
+          }
+        ],
+     }),
+
 
     const data = await response.json();
     console.log("Printful response:", data);
