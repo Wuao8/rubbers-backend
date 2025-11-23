@@ -45,18 +45,17 @@ app.post("/create-order", async (req, res) => {
         variant_id: selectedVariant,
         quantity: 1,
         files: [
-          {
-            type: "embroidery_front",
-            url: "https://www.printful.com/library/file/903954654/download?lang=it", // URL pubblico del file
-            options: {
-              thread_colors: ["#CC3333"] // colore rosso
-            }
-          }
-        ]
-      }
-    ]
-  })
-});
+  {
+    type: "embroidery_front",
+    url: "https://www.printful.com/library/file/903954654/download?lang=it",
+    options: {
+      thread_colors: [
+        { id: "thread_colors", value: ["#CC3333"] }
+      ]
+    }
+  }
+]
+
 
      
 
