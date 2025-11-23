@@ -26,36 +26,36 @@ app.post("/create-order", async (req, res) => {
   const selectedVariant = color.toLowerCase() === "black" ? variantBlack : variantPink;
 
   try {
-    const response = await fetch("https://api.printful.com/orders", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": `Bearer ${apiToken}`,
-      },
-      body: JSON.stringify({
-  recipient: {
-    name,
-    email,
-    address1,
-    city,
-    country_code,
+   const response = await fetch("https://api.printful.com/orders", {
+  method: "POST",
+  headers: {
+    "Content-Type": "application/json",
+    "Authorization": `Bearer ${apiToken}`,
   },
-  items: [
-    {
-      variant_id: selectedVariant,
-      quantity: 1,
-      files: [
-        {
-          type: "embroidery_front",
-          file_id: 903954654,
-          options: {
-            thread_colors: ["#CC3333"] // colore rosso per il logo
+  body: JSON.stringify({
+    recipient: {
+      name,
+      email,
+      address1,
+      city,
+      country_code,
+    },
+    items: [
+      {
+        variant_id: selectedVariant,
+        quantity: 1,
+        files: [
+          {
+            type: "embroidery_front",
+            url: "https://www.printful.com/library/file/903954654/download?lang=it", // URL pubblico del file
+            options: {
+              thread_colors: ["#CC3333"] // colore rosso
+            }
           }
-        }
-      ]
-    }
-  ]
-})
+        ]
+      }
+    ]
+  })
 });
 
      
