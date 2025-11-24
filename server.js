@@ -23,37 +23,45 @@ app.post("/create-order", async (req, res) => {
   const apiToken = process.env.PRINTFUL_TOKEN;
   const selectedVariant = color.toLowerCase() === "black" ? variantBlack : variantPink;
 
-  try {
-    const response = await fetch("https://api.printful.com/orders", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": `Bearer ${apiToken}`,
+ try {
+  const response = await fetch("https://api.printful.com/orders", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "Authorization": `Bearer ${apiToken}`,
+    },
+    body: JSON.stringify({
+      recipient: {
+        name,
+        email,
+        address1,
+        city,
+        country_code,
       },
-      body: JSON.stringify({
-        recipient: {
-          name,
-          email,
-          address1,
-          city,
-          country_code,
-        },
-        items: [
-          {
-            variant_id: selectedVariant,
-            quantity: 1,
-            thread_colors: ["#CC3333"],
-            files: [
-              {
-                type: "embroidery_front",
-                url: "https://www.printful.com/library/file/903954654/download?lang=it",
-                
-              }
-            ]
-          }
-        ]
-      })
-    });
+      items: [
+        {
+          variant_id: selectedVariant,
+          quantity: 1,
+
+          options: [
+            {
+              id: "thread_colors",
+              value: ["#CC3333"]
+            }
+          ],
+
+          files: [
+            {
+              type: "embroidery_front",
+              url: "https://www.printful.com/library/file/903954654/download?lang=it"
+            }
+          ]
+        }
+      ]
+    })
+  });
+
+
 
     const data = await response.json();
     console.log("Printful response:", data);
