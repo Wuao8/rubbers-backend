@@ -42,13 +42,12 @@ app.post("/create-order", async (req, res) => {
           {
             variant_id: selectedVariant,
             quantity: 1,
+            thread_colors: ["#CC3333"],
             files: [
               {
                 type: "embroidery_front",
                 url: "https://www.printful.com/library/file/903954654/download?lang=it",
-                options: [
-                  { id: "thread_colors", value: ["#CC3333"] } // rosso logo
-                ]
+                
               }
             ]
           }
