@@ -9,74 +9,66 @@ const PORT = process.env.PORT || 3000;
 app.use(cors());
 app.use(express.json());
 
-// Varianti Printful per prodotto
-const variants = {
-  tshirt: {
-    S: 5092899867,
-    M: 5092899869,
-    L: 5092899871,
-    XL: 5092899872,
-  },
-  hoodie: {
-    S: 5092884681,
-    M: 5092884682,
-    L: 5092884683,
-    XL: 5092884684,
-  },
-  specialTshirt: {
-    "Black-S": 5095669082,
-    "Black-M": 5095669083,
-    "Black-L": 5095669084,
-    "Black-XL": 5095669085,
-    "White-S": 5095669086,
-    "White-M": 5095669087,
-    "White-L": 5095669088,
-    "White-XL": 5095669089,
-  },
-};
+// Varianti Beanie
+const variantBlack = process.env.VARIANT_BLACK; // 5071022105
+const variantPink = process.env.VARIANT_PINK;   // 5071022108
+
+// Varianti felpa hoodie
+const hoodieS  = 5092884681;
+const hoodieM  = 5092884682;
+const hoodieL  = 5092884683;
+const hoodieXL = 5092884684;
+
 
 app.post("/create-order", async (req, res) => {
-  const { name, email, address1, city, country_code, product, size, color } = req.body;
+  const { name, email, address1, city, country_code, color } = req.body;
 
-  if (!name || !email || !address1 || !city || !country_code || !product || !size) {
-    return res.status(400).json({ error: "Tutti i campi sono richiesti: nome, email, indirizzo, città, paese, prodotto e taglia" });
+  if (!name || !email || !address1 || !city || !country_code || !color) {
+    return res.status(400).json({ error: "Tutti i campi sono richiesti, incluso colore" });
   }
 
   const apiToken = process.env.PRINTFUL_TOKEN;
+  const selectedVariant = color.toLowerCase() === "black" ? variantBlack : variantPink;
 
-  let selectedVariant;
-
-  // Selezione variante in base al prodotto
-  if (product === "tshirt") {
-    selectedVariant = variants.tshirt[size];
-  } else if (product === "hoodie") {
-    selectedVariant = variants.hoodie[size];
-  } else if (product === "specialTshirt") {
-    if (!color) return res.status(400).json({ error: "Colore richiesto per Special T-shirt" });
-    selectedVariant = variants.specialTshirt[`${color}-${size}`];
-  } else {
-    return res.status(400).json({ error: "Prodotto non valido" });
-  }
-
-  if (!selectedVariant) return res.status(400).json({ error: "Variante non trovata" });
-
-  try {
-    const response = await fetch("https://api.printful.com/orders", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": `Bearer ${apiToken}`,
+ try {
+  const response = await fetch("https://api.printful.com/orders", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "Authorization": `Bearer ${apiToken}`,
+    },
+    body: JSON.stringify({
+      recipient: {
+        name,
+        email,
+        address1,
+        city,
+        country_code,
       },
-      body: JSON.stringify({
-        recipient: { name, email, address1, city, country_code },
-        items: [
-          {
-            variant_id: selectedVariant,
-            quantity: 1,
-          }
-        ]
-      })
-    });
+      items: [
+        {
+          variant_id: selectedVariant,
+          quantity: 1,
+
+          options: [
+            {
+              id: "thread_colors",
+              value: ["#CC3333"]
+            }
+          ],
+
+          files: [
+            {
+              type: "embroidery_front",
+              url: "https://www.printful.com/library/file/903954654/download?lang=it"
+            }
+          ]
+        }
+      ]
+    })
+  });
+
+
 
     const data = await response.json();
     console.log("Printful response:", data);
@@ -91,6 +83,76 @@ app.post("/create-order", async (req, res) => {
     return res.status(500).json({ error: "Errore interno al server" });
   }
 });
+
+
+app.post("/create-order-hoodie", async (req, res) => {
+  const { name, email, address1, city, country_code, size } = req.body;
+
+  if (!name || !email || !address1 || !city || !country_code || !size) {
+    return res.status(400).json({ error: "Tutti i campi sono richiesti, inclusa la taglia" });
+  }
+
+  // Scegli variante in base alla taglia
+  let selectedVariant;
+  switch (size.toUpperCase()) {
+    case "S":  selectedVariant = hoodieS; break;
+    case "M":  selectedVariant = hoodieM; break;
+    case "L":  selectedVariant = hoodieL; break;
+    case "XL": selectedVariant = hoodieXL; break;
+    default:
+      return res.status(400).json({ error: "Taglia non valida" });
+  }
+
+  const apiToken = process.env.PRINTFUL_TOKEN;
+
+  try {
+    const response = await fetch("https://api.printful.com/orders", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${apiToken}`,
+      },
+      body: JSON.stringify({
+        recipient: {
+          name,
+          email,
+          address1,
+          city,
+          country_code,
+        },
+        items: [
+          {
+            variant_id: selectedVariant,
+            quantity: 1,
+            files: [
+              {
+                type: "embroidery_front",
+                url: "https://www.printful.com/library/file/903954654/download?lang=it"
+              }
+            ]
+          }
+        ]
+      })
+    });
+
+    const data = await response.json();
+    console.log("Printful hoodie response:", data);
+
+    if (data?.result?.checkout_url) {
+      return res.json({ checkout: data.result.checkout_url });
+    } else {
+      return res.status(500).json({ error: "Impossibile creare l'ordine per la felpa" });
+    }
+
+  } catch (error) {
+    console.error("Errore hoodie backend:", error);
+    return res.status(500).json({ error: "Errore interno al server" });
+  }
+});
+
+
+
+
 
 app.listen(PORT, () => {
   console.log(`Server Rubbers backend attivo su porta ${PORT}`);
