@@ -1,3 +1,6 @@
+
+
+
 // server.js
 import express from "express";
 import fetch from "node-fetch";
@@ -9,32 +12,11 @@ const PORT = process.env.PORT || 3000;
 app.use(cors());
 app.use(express.json());
 
-// Varianti Beanie
-const variantBlack = process.env.VARIANT_BLACK; // 5071022105
-const variantPink = process.env.VARIANT_PINK;   // 5071022108
+// PRODUCTS
 
-// Varianti felpa hoodie
-const hoodieS  = 5092884681;
-const hoodieM  = 5092884682;
-const hoodieL  = 5092884683;
-const hoodieXL = 5092884684;
-
-
-// Varianti  t-shirt
-const tshirtS  = 5092899867;
-const tshirtM  = 5092899869;
-const tshirtL  = 5092899871;
-const tshirtXL = 5092899872;
-
-
-
-
-// Varianti  Special
-const specialS  = 5095669086;
-const specialM  = 5095669087;
-const specialL  = 5095669088;
-const specialXL = 5095669089;
-
+const tshirtBlackS = 5313513882;
+const tshirtBlackM = 5313513883;
+const tshirtBlackL = 5313513884;
 
 
 
@@ -47,7 +29,7 @@ app.post("/create-order", async (req, res) => {
   }
 
   const apiToken = process.env.PRINTFUL_TOKEN;
-  const selectedVariant = color.toLowerCase() === "black" ? variantBlack : variantPink;
+  const selectedVariant = tshirtBlackS;
 
  try {
   const response = await fetch("https://api.printful.com/orders", {
@@ -68,6 +50,7 @@ app.post("/create-order", async (req, res) => {
         {
           variant_id: selectedVariant,
           quantity: 1,
+          name: "T-SHIRT TEST",
 
           options: [
             {
@@ -312,6 +295,68 @@ app.post("/create-order-special", async (req, res) => {
 
 
 
+
+app.post("/create-order-trucker", async (req, res) => {
+  const { name, email, address1, city, country_code } = req.body;
+
+  if (!name || !email || !address1 || !city || !country_code) {
+    return res.status(400).json({ 
+      error: "Tutti i campi sono richiesti" 
+    });
+  }
+
+  const apiToken = process.env.PRINTFUL_TOKEN;
+
+  try {
+    const response = await fetch("https://api.printful.com/orders", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${apiToken}`,
+      },
+      body: JSON.stringify({
+        recipient: {
+          name,
+          email,
+          address1,
+          city,
+          country_code,
+        },
+        items: [
+          {
+            variant_id: truckerVariant,
+            quantity: 1,
+            files: [
+              {
+                type: "embroidery_front",
+                url: "https://www.printful.com/library/file/903954654/download?lang=it"
+              }
+            ]
+          }
+        ]
+      })
+    });
+
+    const data = await response.json();
+    console.log("Printful trucker response:", data);
+
+    if (data?.result?.checkout_url) {
+      return res.json({ checkout: data.result.checkout_url });
+    } else {
+      return res.status(500).json({ 
+        error: "Impossibile creare l'ordine per il cappello" 
+      });
+    }
+
+  } catch (error) {
+    console.error("Errore trucker backend:", error);
+    return res.status(500).json({ error: "Errore interno al server" });
+  }
+});
+
+
+
 app.listen(PORT, () => {
   console.log(`Server Rubbers backend attivo su porta ${PORT}`);
 });
+
