@@ -59,9 +59,8 @@ app.post("/create-checkout-session", async (req, res) => {
         variant_id: tshirtBlackS.toString()
       },
 
-      success_url: "https://rubberscompany.site/success.html",
-
-      cancel_url: "https://rubberscompany.site/cancel.html"
+     success_url: "https://invetrina.netlify.app/success.html",
+     cancel_url: "https://invetrina.netlify.app/cancel.html"
     });
 
     res.json({ url: session.url });
