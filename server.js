@@ -9,7 +9,11 @@ const PORT = process.env.PORT || 3000;
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 
-app.use(cors());
+app.use(cors({
+  origin: "https://invetrina.netlify.app",
+  methods: ["GET", "POST"],
+  credentials: true
+}));
 
 app.use(express.json());
 
