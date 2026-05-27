@@ -9,10 +9,9 @@ const PORT = process.env.PORT || 3000;
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 
-const tshirtBlackS = 5313513882;
 
 
-
+// CORS
 app.use(cors({
   origin: "https://invetrina.netlify.app",
   methods: ["GET", "POST"],
@@ -21,12 +20,13 @@ app.use(cors({
 
 
 
+const tshirtBlackS = 5313513882;
+
 
 
 
 
 // WEBHOOK STRIPE
-
 app.post("/webhook", express.raw({ type: "application/json" }), async (req, res) => {
 
   const sig = req.headers["stripe-signature"];
@@ -41,9 +41,11 @@ app.post("/webhook", express.raw({ type: "application/json" }), async (req, res)
       process.env.STRIPE_WEBHOOK_SECRET
     );
 
+    console.log("✅ Webhook ricevuto:", event.type);
+
   } catch (err) {
 
-    console.log("Webhook signature failed.");
+    console.log("❌ Webhook signature failed:", err.message);
 
     return res.sendStatus(400);
   }
@@ -54,6 +56,8 @@ app.post("/webhook", express.raw({ type: "application/json" }), async (req, res)
 
 
   if (event.type === "checkout.session.completed") {
+
+    console.log("💰 Pagamento completato!");
 
     const session = event.data.object;
 
@@ -78,11 +82,11 @@ app.post("/webhook", express.raw({ type: "application/json" }), async (req, res)
             name: customer.name,
             email: customer.email,
 
-            address1: customer.address.address.line1,
+            address1: customer.address.line1,
 
-            city: customer.address.address.city,
+            city: customer.address.city,
 
-            country_code: customer.address.address.country
+            country_code: customer.address.country
           },
 
           items: [
@@ -109,12 +113,17 @@ app.post("/webhook", express.raw({ type: "application/json" }), async (req, res)
 
 
 
+
+
+// JSON PARSER
 app.use(express.json());
 
 
 
-// CREATE CHECKOUT SESSION
 
+
+
+// CREATE CHECKOUT SESSION
 app.post("/create-checkout-session", async (req, res) => {
 
   try {
@@ -154,11 +163,13 @@ app.post("/create-checkout-session", async (req, res) => {
       cancel_url: "https://rubberscompany.site/cancel.html"
     });
 
+    console.log("✅ Checkout session creata");
+
     res.json({ url: session.url });
 
   } catch (err) {
 
-    console.error(err);
+    console.error("❌ CHECKOUT ERROR:", err);
 
     res.status(500).json({
       error: "Errore Stripe"
@@ -172,11 +183,7 @@ app.post("/create-checkout-session", async (req, res) => {
 
 
 
-
-
-
 app.listen(PORT, () => {
-  console.log(`Server attivo su ${PORT}`);
+  console.log(`🚀 Server attivo su ${PORT}`);
 });
-
 
