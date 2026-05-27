@@ -9,6 +9,8 @@ const PORT = process.env.PORT || 3000;
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 
+const tshirtBlackS = 5313513882;
+
 
 
 app.use(cors({
@@ -18,7 +20,7 @@ app.use(cors({
 }));
 
 
-const tshirtBlackS = 5313513882;
+
 
 
 
