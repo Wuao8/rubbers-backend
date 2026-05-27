@@ -11,6 +11,12 @@ const PORT = process.env.PORT || 3000;
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 
 
+app.post("/test", (req, res) => {
+  console.log("🔥 TEST WEBHOOK ARRIVATO");
+  res.send("ok");
+});
+
+
 
 // CORS
 app.use(cors({
