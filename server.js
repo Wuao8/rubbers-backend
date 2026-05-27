@@ -9,72 +9,16 @@ const PORT = process.env.PORT || 3000;
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 
+
+
 app.use(cors({
   origin: "https://invetrina.netlify.app",
   methods: ["GET", "POST"],
   credentials: true
 }));
 
-app.use(express.json());
 
 const tshirtBlackS = 5313513882;
-
-
-
-
-
-// CREATE CHECKOUT SESSION
-
-app.post("/create-checkout-session", async (req, res) => {
-
-  try {
-
-    const session = await stripe.checkout.sessions.create({
-
-      payment_method_types: ["card"],
-
-      mode: "payment",
-
-      shipping_address_collection: {
-        allowed_countries: ["IT", "US", "FR", "DE", "ES"]
-      },
-
-      line_items: [
-        {
-          price_data: {
-            currency: "eur",
-
-            product_data: {
-              name: "Rubbers T-Shirt Black S"
-            },
-
-            unit_amount: 3500
-          },
-
-          quantity: 1
-        }
-      ],
-
-      metadata: {
-        variant_id: tshirtBlackS.toString()
-      },
-
-     success_url: "https://invetrina.netlify.app/success.html",
-     cancel_url: "https://invetrina.netlify.app/cancel.html"
-    });
-
-    res.json({ url: session.url });
-
-  } catch (err) {
-
-    console.error(err);
-
-    res.status(500).json({
-      error: "Errore Stripe"
-    });
-  }
-});
-
 
 
 
@@ -160,6 +104,69 @@ app.post("/webhook", express.raw({ type: "application/json" }), async (req, res)
 
   res.json({ received: true });
 });
+
+
+
+app.use(express.json());
+
+
+
+// CREATE CHECKOUT SESSION
+
+app.post("/create-checkout-session", async (req, res) => {
+
+  try {
+
+    const session = await stripe.checkout.sessions.create({
+
+      payment_method_types: ["card"],
+
+      mode: "payment",
+
+      shipping_address_collection: {
+        allowed_countries: ["IT", "US", "FR", "DE", "ES"]
+      },
+
+      line_items: [
+        {
+          price_data: {
+            currency: "eur",
+
+            product_data: {
+              name: "Rubbers T-Shirt Black S"
+            },
+
+            unit_amount: 3500
+          },
+
+          quantity: 1
+        }
+      ],
+
+      metadata: {
+        variant_id: tshirtBlackS.toString()
+      },
+
+      success_url: "https://rubberscompany.site/success.html",
+
+      cancel_url: "https://rubberscompany.site/cancel.html"
+    });
+
+    res.json({ url: session.url });
+
+  } catch (err) {
+
+    console.error(err);
+
+    res.status(500).json({
+      error: "Errore Stripe"
+    });
+  }
+});
+
+
+
+
 
 
 
