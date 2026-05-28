@@ -4,6 +4,7 @@ import fetch from "node-fetch";
 import Stripe from "stripe";
 
 
+
 const app = express();
 
 const PORT = process.env.PORT || 3000;
@@ -132,7 +133,7 @@ app.use(express.json());
 
 // CREATE CHECKOUT SESSION
 app.post("/create-checkout-session", async (req, res) => {
-
+  console.log("STRIPE KEY:", process.env.STRIPE_SECRET_KEY?.slice(0, 10));
   try {
 
     const session = await stripe.checkout.sessions.create({
