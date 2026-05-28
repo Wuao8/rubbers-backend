@@ -37,24 +37,23 @@ const tshirtBlackS = 5313513882;
 // WEBHOOK STRIPE
 app.post("/webhook", express.raw({ type: "application/json" }), async (req, res) => {
 
+  console.log("WEBHOOK HIT");
+
   const sig = req.headers["stripe-signature"];
 
   let event;
 
   try {
-
     event = stripe.webhooks.constructEvent(
       req.body,
       sig,
       process.env.STRIPE_WEBHOOK_SECRET
     );
 
-    console.log("✅ Webhook ricevuto:", event.type);
+    console.log("EVENT OK:", event.type);
 
   } catch (err) {
-
-    console.log("❌ Webhook signature failed:", err.message);
-
+    console.log("WEBHOOK ERROR:", err.message);
     return res.sendStatus(400);
   }
 
