@@ -93,7 +93,9 @@ app.post("/webhook", express.raw({ type: "application/json" }), async (req, res)
 
             city: customer.address.city,
 
-            country_code: customer.address.country
+            country_code: customer.address.country,
+
+            state: customer.address?.state || customer.address?.city || "NA",
           },
 
           items: [
