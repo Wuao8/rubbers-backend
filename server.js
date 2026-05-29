@@ -100,8 +100,8 @@ app.post("/webhook", express.raw({ type: "application/json" }), async (req, res)
 
           items: [
             {
-              variant_id: variant_id,
-              quantity: 1
+             sync_variant_id: variant_id,
+             quantity: 1
             }
           ]
         })
