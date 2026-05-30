@@ -39,66 +39,6 @@ app.use(cors({
   credentials: true
 }));
 
-/* =========================
-   JSON PARSER
-========================= */
-
-app.use(express.json());
-
-/* =========================
-   CHECKOUT STRIPE
-========================= */
-
-app.post("/create-checkout-session", async (req, res) => {
-  try {
-
-    const { product_key } = req.body;
-
-    const product = products[product_key];
-
-    if (!product) {
-      return res.status(400).json({ error: "Prodotto non valido" });
-    }
-
-    const session = await stripe.checkout.sessions.create({
-      payment_method_types: ["card"],
-      mode: "payment",
-
-      shipping_address_collection: {
-        allowed_countries: ["IT", "US", "FR", "DE", "ES"]
-      },
-
-      line_items: [
-        {
-          price_data: {
-            currency: "eur",
-            product_data: {
-              name: product_key
-            },
-            unit_amount: product.price * 100
-          },
-          quantity: 1
-        }
-      ],
-
-      metadata: {
-        product_key: product_key,
-        sync_variant_id: product.sync_variant_id.toString()
-      },
-
-      success_url: "https://rubberscompany.netlify.app/success.html",
-      cancel_url: "https://rubberscompany.netlify.app/cancel.html"
-    });
-
-    console.log("✅ Checkout session creata");
-
-    res.json({ url: session.url });
-
-  } catch (err) {
-    console.error("❌ CHECKOUT ERROR:", err);
-    res.status(500).json({ error: "Errore Stripe" });
-  }
-});
 
 /* =========================
    WEBHOOK STRIPE → PRINTFUL
@@ -171,6 +111,69 @@ app.post("/webhook", express.raw({ type: "application/json" }), async (req, res)
 
   res.json({ received: true });
 });
+
+/* =========================
+   JSON PARSER
+========================= */
+
+app.use(express.json());
+
+/* =========================
+   CHECKOUT STRIPE
+========================= */
+
+app.post("/create-checkout-session", async (req, res) => {
+  try {
+
+    const { product_key } = req.body;
+
+    const product = products[product_key];
+
+    if (!product) {
+      return res.status(400).json({ error: "Prodotto non valido" });
+    }
+
+    const session = await stripe.checkout.sessions.create({
+      payment_method_types: ["card"],
+      mode: "payment",
+
+      shipping_address_collection: {
+        allowed_countries: ["IT", "US", "FR", "DE", "ES"]
+      },
+
+      line_items: [
+        {
+          price_data: {
+            currency: "eur",
+            product_data: {
+              name: product_key
+            },
+            unit_amount: product.price * 100
+          },
+          quantity: 1
+        }
+      ],
+
+      metadata: {
+        product_key: product_key,
+        sync_variant_id: product.sync_variant_id.toString()
+      },
+
+      success_url: "https://rubberscompany.netlify.app/success.html",
+      cancel_url: "https://rubberscompany.netlify.app/cancel.html"
+    });
+
+    console.log("✅ Checkout session creata");
+
+    res.json({ url: session.url });
+
+  } catch (err) {
+    console.error("❌ CHECKOUT ERROR:", err);
+    res.status(500).json({ error: "Errore Stripe" });
+  }
+});
+
+
 
 /* =========================
    SERVER START
