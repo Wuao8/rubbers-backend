@@ -4,7 +4,7 @@ import fetch from "node-fetch";
 import Stripe from "stripe";
 
 const app = express();
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 3000; 
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 
